@@ -1,0 +1,308 @@
+---
+title: "Evidencia 2"
+author: "Francisco Jervis A00835131"
+date: '2022-05-07'
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Parte 1- Video
+  
+https://youtu.be/gVvgVD6L3Sg
+  
+## Parte 2- Código
+
+### Análisis de secuencias
+
+La pandemia de SARS-COV-2 ha sido un evento nunca antes visto ya que en otras pandemias en la historia el mundo no estaba tan interconectado como lo está hoy. Por naturaleza la naturaleza viral de el SARS-COV-2 este virus puede mutar o evolucionar de manera exponencial entre más personas infectadas lo que ha permitido que existan una infinidad de variantes y variantes en el mundo.
+
+Para entender más como este virus llegó desde China hacia Latinoamérica se tomarán en cuenta todos los países de Sudamérica de los cuales exista información en NCBI sobre las secuencias presentes en esos lugares y México para comparación y análisis de la hipótesis que será presentada. 
+
+Sólo se tomarán en cuenta las secuencias que sean completas y que no tengan caracteres ambiguos como N o X. De las secuencias que cumplen con lo anterior se utilizará la secuencia con la fecha de recolección más temprana.
+
+Esto es con el propósito de comparar las primeras variantes de SARS-COV-2 que llegaron a sudamérica y la primera variante que llegó a México.
+
+#### Hipótesis
+
+La Hipótesis a comprobar con este análisis es: La distancia entre cada país es directamente proporcional con la divergencia que existe entre las primeras variantes que los infectaron. Es decir; las variantes que infectaron a los países de sudamérica serán similares entre sí con más semejanza dependiendo de la distancia entre cada país y todas estas tendrán la mayor disparidad con la variante que infectó a México.
+
+#### Detalles de cada secuencia elegida
+
+##### México
+Fecha de recolección: 25-03-2020  
+Pangolin: B.1  
+
+##### Venezuela
+Fecha de recolección: 15-03-2020  
+Pangolin: B.1  
+
+##### Uruguay
+Fecha de recolección: 13-03-2020  
+Pangolin: A.5  
+
+##### Perú
+Fecha de recolección: 10-03-2020  
+Pangolin: B.1.1  
+
+##### Ecuador
+Fecha de recolección: 23-03-2020  
+Pangolin: B.1  
+
+##### Chile
+Fecha de recolección: 12-03-2020  
+Pangolin: B.1  
+
+##### Brazil
+Fecha de recolección: 28-02-2020  
+Pangolin:B  
+
+##### Argentina  
+Fecha de recolección: 16-05-2020    
+Pangolin: B.1  
+
+##### Paraguay
+Fecha de recolección: 26-03-2020    
+Pangolin: B.1.1.33  
+
+##### Colombia
+Fecha de recolección: 02-04-2020  
+Pangolin: B.1  
+
+#### Inicialización
+Para poder analizar cada secuencia se utilizaran dos librerias de R: Seqnir y Biostrings. Estas librerias permiten manipular cada secuencia de manera tal que spueda obtener la información requerida.
+
+Para la primera parte del análisis solo se utilizara la primera libreira.
+
+Importar libreria:
+```{r}
+library(seqinr)
+```
+
+Guardar información de cada variante en una variable utilizando la función read.fasta
+```{r}
+Mexico1<-read.fasta("Mexico.B.1,20-03-25.fasta")
+Venezuela1<-read.fasta("Venezuela,B.1,20-03-15.fasta")
+Uruguay1<-read.fasta("Uruguay,A.5,20-03-13.fasta")
+Peru1<-read.fasta("Peru,B1.1,20-03-10.fasta")
+Ecuador1<-read.fasta("Ecuador,B.1,20-03-23.fasta")
+Chile1<-read.fasta("Chille,B.1,20-03-12.fasta")
+Brazil1<-read.fasta("Brazil,B,20-02-28.fasta")
+Argentina1<-read.fasta("Argentina,B.1,20-05-16.fasta")
+Paraguay1<-read.fasta("Paraguay,B.1.1.33,20-03-26.fasta")
+Colombia1<-read.fasta("Colombia,B.1,20-04-02.fasta")
+```
+
+### Longitud de las secuencias
+
+Para empezar este análisis se calcularán las longitudes, cantidad de bases y porcentaje de nucleótidos de cada variante. Para esto se utilizará la siguinte función: 
+
+```{r}
+LSec<-function(x){
+  l<-length(x[[1]])
+  c<-count(x[[1]],1)
+  p<-count(x[[1]],1,freq = TRUE)
+  cat("Longitud de variante:\n",l,"nucleótidos\n")
+  cat("\nCantidad de bases en variante:")
+  print(c)
+  cat("\nPorcentaje de nucleótidos:")
+  print(p*100)
+}
+```
+##### México
+```{r}
+LSec(Mexico1)
+```
+
+##### Venezuela
+```{r, echo=FALSE}
+LSec(Venezuela1)
+```
+##### Uruguay
+```{r, echo=FALSE}
+LSec(Uruguay1)
+```
+##### Perú
+```{r, echo=FALSE}
+LSec(Peru1)
+```
+##### Ecuador
+```{r, echo=FALSE}
+LSec(Ecuador1)
+```
+##### Chile
+```{r, echo=FALSE}
+LSec(Chile1)
+```
+##### Brazil
+```{r, echo=FALSE}
+LSec(Brazil1)
+```
+##### Argentina
+```{r, echo=FALSE}
+LSec(Argentina1)
+```
+##### Paraguay
+```{r, echo=FALSE}
+LSec(Paraguay1)
+```
+##### Colombia
+```{r, echo=FALSE}
+LSec(Colombia1)
+```
+
+### Grafica de comparación de bases
+Para comparar la cantidad de ACGT en cada variante se creará una grafica utlilando la libreira ggplot2.
+
+
+```{r}
+library(ggplot2)
+```
+
+
+Despues de importar la libreria se debe crear un data frame con el nombre de cada variante, el nombre de las bases y finalmente una matriz la cual contiene la cantidad de nucleotidos de cada variante en orden, para obtener esto se utiliza la función count.
+
+```{r}
+Nuc<-function(x){
+  y<-count(x[[1]],1)
+  return(y)
+}
+m<-Nuc(Mexico1)
+v<-Nuc(Venezuela1)
+u<-Nuc(Uruguay1)
+p<-Nuc(Peru1)
+e<-Nuc(Ecuador1)
+ch<-Nuc(Chile1)
+b<-Nuc(Brazil1)
+a<-Nuc(Argentina1)
+pa<-Nuc(Paraguay1)
+c<-Nuc(Colombia1)
+
+
+Nvar<-rep(c("México","Venezuela","Uruguay","Perú","Ecuador","Chile","Brazil","Argentina","Paraguay","Colombia"),each=4)
+
+bas<-rep(c("A","C","G","T"),10)
+
+CantN<-matrix(c(m,v,u,p,e,ch,b,a,pa,c))
+
+var<-data.frame(Variante=Nvar,Bases=bas,Cantidad=CantN)
+```
+
+
+Finalmente se utiliza la función ggplot para crear la grafica.  
+
+```{r}
+Graf<-ggplot(data=var, aes(x=Bases, y=Cantidad, fill=Variante))+
+  geom_bar(stat="identity", position=position_dodge())+
+  scale_fill_brewer(palette = "Paired")
+
+Graf
+```
+
+
+Se puede crear una segunda grafica limitando los valores de el eje Y desde 5500 a 9500 para poder apreciar de mejor manera las diferencias entre cada variante.
+
+```{r,echo=FALSE}
+GrafZ<-ggplot(data=var, aes(x=Bases, y=Cantidad, fill=Variante))+
+  geom_bar(stat="identity", position=position_dodge())+
+  scale_fill_brewer(palette = "Paired")+ 
+    coord_cartesian(ylim=c(5500, 9500))
+
+GrafZ
+```
+
+Como se puede observar en las gráficas, todas las variantes son muy similares pero la variante la cual parece tener mayor discrepancia es la variante mexicana (rojo), lo cual fundamenta la hipótesis planteada.
+
+### Análisis jerárquico global
+
+Un análisis más profundo que las gráficas anteriores el cual permitirá observar las diferencias y similitudes entre cada variantes de manera más precisa es un análisis jerárquico.
+
+Para empezar este análisis se debe importar la libreira Biostrings.
+
+```{r, results='hide'}
+library(Biostrings)
+```
+  
+  
+Posteriormente se crean variables con la informacion de cada variante utilizando la función readDNAStringSet.
+```{r}
+Mexico<-readDNAStringSet("Mexico.B.1,20-03-25.fasta")
+Venezuela<-readDNAStringSet("Venezuela,B.1,20-03-15.fasta")
+Uruguay<-readDNAStringSet("Uruguay,A.5,20-03-13.fasta")
+Peru<-readDNAStringSet("Peru,B1.1,20-03-10.fasta")
+Ecuador<-readDNAStringSet("Ecuador,B.1,20-03-23.fasta")
+Chile<-readDNAStringSet("Chille,B.1,20-03-12.fasta")
+Brazil<-readDNAStringSet("Brazil,B,20-02-28.fasta")
+Argentina<-readDNAStringSet("Argentina,B.1,20-05-16.fasta")
+Paraguay<-readDNAStringSet("Paraguay,B.1.1.33,20-03-26.fasta")
+Colombia<-readDNAStringSet("Colombia,B.1,20-04-02.fasta")
+
+```
+  
+  
+Con estas variables se crea una lista solo con la información de las secuencias.
+```{r}
+SecuenciasADN<-list()
+SecuenciasADN[["Mexico"]]<-toString(Mexico[[1]])
+SecuenciasADN[["Venezuela"]]<-toString(Venezuela[[1]])
+SecuenciasADN[["Uruguay"]]<-toString(Uruguay[[1]])
+SecuenciasADN[["Peru"]]<-toString(Peru[[1]])
+SecuenciasADN[["Ecuador"]]<-toString(Ecuador[[1]])
+SecuenciasADN[["Chile"]]<-toString(Chile[[1]])
+SecuenciasADN[["Brasil"]]<-toString(Brazil[[1]])
+SecuenciasADN[["Argentina"]]<-toString(Argentina[[1]])
+SecuenciasADN[["Paraguay"]]<-toString(Paraguay[[1]])
+SecuenciasADN[["Colombia"]]<-toString(Colombia[[1]])
+```
+  
+  
+Despues se declara una matriz de scores vacía y se utiliza un for loop con el método de alineamiento de secuencias para llenarla.
+```{r}
+align_matrix <- matrix(0, nrow=10, ncol=10, dimnames = list(names(SecuenciasADN), names(SecuenciasADN)))
+for(i in 1:length(SecuenciasADN))
+  for(j in 1:length(SecuenciasADN)){
+    if(i == j | align_matrix[i,j] != 0){
+      next
+    } else{
+      align_matrix[i,j] <- score(pairwiseAlignment(SecuenciasADN[[i]], SecuenciasADN[[j]]))
+      align_matrix[j,i] <- align_matrix[i,j]
+    }
+  }
+```
+  
+  
+Finalmente encontramos las distancias y creamos un árbol filogenético de las variantes con el método Ward.D2.
+```{r}
+datos<-as.dist(1.5*max(align_matrix)-align_matrix)
+plot(hclust(datos,method = "ward.D2"))
+
+```
+
+Con este árbol podemos observar que México tiene una variante con más disimilitud que el resto, también se puede observar que la mayoría de los países latinoamericanos tienen variantes similares.
+Pero por otro lado al analizar países con más similitud como Chile - Argentina al igual que Venezuela - Colombia - Ecuador - Brasil - Uruguay se podría decir que es consecuencia a que estos países son vecinos entre sí. La similitud entre Paraguay y Perú sin ser vecinos se podría explicar deduciendo que se debe a que también existe una similitud con Bolivia pero lastimosamente no existen datos de este país en NCBI. 
+
+  *Cómo referencia se incluirá un mapa con la conclusión
+  
+## Conclusión
+
+En este analisis se pudo evidenciar que si existe una correlacion entre la cercania entre paises y la similitud entre las variantes que aparecieron por primera vez en su territorio lo que confirma la hipotesis. Pero, la correlacion es algo debil. Esto se podria dar por varias razones; pero la mas importante es la falta de datos. Por parte del resto de paises sudamericanos y falta de datos mas concretos en los paises en los cuales si existen datos. con un analisis mas completo con datos mas concretos probablemente se podria comprobar de mejor manera la hipotesis.
+              
+*
+![](mapa.jpg)
+
+## Referencias
+
+NCBI-National Center for Biotechnology Information. (n.d.). NCBI - SARS-CoV-2 Hub. National Library of Medicine. Retrieved May 10, 2022, from https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=Severe%20acute%20respiratory%20syndrome%20coronavirus%202%20(SARS-CoV-2),%20taxid:2697049
+  
+  
+van der Hoek L. (2007). Human coronaviruses: what do they cause?. Antiviral therapy, 12(4 Pt B), 651–658.
+  
+  
+Zhang, G., Li, B., Yoo, D., Qin, T., Zhang, X., Jia, Y., & Cui, S. (2021). Animal coronaviruses and SARS-CoV-2. Transboundary and emerging diseases, 68(3), 1097–1110. https://doi.org/10.1111/tbed.13791
+  
+  
+Alluwaimi, A. M., Alshubaith, I. H., Al-Ali, A. M., & Abohelaika, S. (2020). The Coronaviruses of Animals and Birds: Their Zoonosis, Vaccines, and Models for SARS-CoV and SARS-CoV2. Frontiers in Veterinary Science, 7. https://doi.org/10.3389/fvets.2020.582287
+  
+  
+Coronavirus: the science explained - UKRI. (2020, July). What is coronavirus? The different types of coronaviruses. Retrieved May 10, 2022, from https://coronavirusexplained.ukri.org/en/article/cad0003/
